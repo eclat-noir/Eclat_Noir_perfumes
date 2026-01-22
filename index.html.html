@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Catálogo de Perfumes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+  <style>
+    body { margin:0; font-family:'Poppins',sans-serif; background:white; color:#1a1a1a; }
+    header { background:#0a1f44; color:white; padding:20px; text-align:center; font-family:'Playfair Display',serif; font-size:36px; letter-spacing:2px; }
+    .catalogo { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:20px; padding:30px; }
+    .card { border:1px solid #ddd; border-radius:10px; padding:15px; text-align:center; cursor:pointer; transition:transform .2s, box-shadow .2s; }
+    .card:hover { transform:scale(1.03); box-shadow:0 4px 12px rgba(0,0,0,.1); }
+    .card img { width:100%; height:180px; object-fit:contain; }
+    .nombre { font-family:'Playfair Display',serif; font-size:20px; color:#0a1f44; margin-top:10px; }
+
+    .detalle { display:none; padding:30px; }
+    .detalle img { width:100%; max-width:300px; height:300px; object-fit:contain; display:block; margin:auto; }
+    .detalle .nombre { font-size:28px; text-align:center; }
+    .marca { text-align:center; font-weight:500; margin-top:10px; }
+    .notas { text-align:center; margin-top:8px; color:#444; }
+    .btn { display:block; margin:30px auto 0; background:#0a1f44; color:white; border:none; padding:12px 25px; border-radius:25px; cursor:pointer; font-size:16px; }
+  </style>
+</head>
+<body>
+  <header>Catálogo de Perfumes</header>
+
+  <div style="padding:20px; text-align:center; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+    <input id="buscador" type="text" placeholder="Buscar perfume..." oninput="cargarCatalogo()" style="width:60%; max-width:300px; padding:10px 15px; border-radius:25px; border:1px solid #ccc; font-size:16px;">
+    <select id="filtroMarca" onchange="cargarCatalogo()" style="padding:10px 15px; border-radius:25px; border:1px solid #ccc; font-size:16px;">
+      <option value="">Todas las marcas</option>
+    </select>
+    <select id="filtroCategoria" onchange="cargarCatalogo()" style="padding:10px 15px; border-radius:25px; border:1px solid #ccc; font-size:16px;">
+      <option value="">Todas las categorías</option>
+    </select>
+  </div>
+
+  <section class="catalogo" id="catalogo"></section>
+
+  <section class="detalle" id="detalle">
+    <img id="detalleImg" />
+    <div class="nombre" id="detalleNombre"></div>
+    <div class="marca" id="detalleMarca"></div>
+    <div class="notas" id="detalleNotas"></div>
+    <button class="btn" onclick="volverMenu()">Volver al catálogo</button>
+  </section>
+
+  <script>
+    const perfumes = [
+      {
+        nombre: "Fhakar Black Lattafa",
+        marca: "Lattafa",
+        categoria: "Aromatico",
+        notas: " Las Notas de Salida son manzana, bergamota y jengibre; las Notas de Corazón son lavanda, salvia, bayas de enebro y geranio; las Notas de Fondo son haba tonka, cedro, Amberwood y vetiver.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.70465.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Fhakar Lattafa Platino",
+        marca: "Lattafa",
+        categoria: "Fresco",
+        notas: "bergamota, pimienta rosa y cardamomo",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.107363.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Khamrah Qahwa",
+        marca: "Lattafa",
+        categoria: "Calido",
+        notas: "canela, cardamomo y jengibre",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.88175.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Khamrah Dukhan",
+        marca: "Lattafa",
+        categoria: "ambar",
+        notas: "especias, pimienta de Jamaica y mandarina",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.104529.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "9pm",
+        marca: "Afnan",
+        categoria: "ambar",
+        notas: "manzana, canela, lavanda silvestre y bergamota",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.65414.2x.avif",
+        disponible: true 
+      },
+      {
+        nombre: "9am Dive",
+        marca: "Afnan",
+        categoria: "afrutado",
+        notas: "limón (lima ácida), menta, grosellas negras y pimienta rosa",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.78611.2x.avif",
+        disponible: true 
+      },
+      {
+        nombre: "9pm Elixir",
+        marca: "Afnan",
+        categoria: "calido especiado",
+        notas: "cardamomo, nuez moscada y elemí",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.111894.2x.avif",
+        disponible: true 
+      },
+      {
+        nombre: "Club de Nuit Intense",
+        marca: "Armaf",
+        categoria: "Citrico",
+        notas: "limón (lima ácida), piña, bergamota, grosellas negras y manzana",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.34696.2x.avif",
+        disponible: true 
+      },
+      {
+        nombre: "Club de Nuit Blue Iconic",
+        marca: "Armaf",
+        categoria: "Citrico",
+        notas: "toronja (pomelo), limón (lima ácida), menta, pimienta rosa y cilantro",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.78475.2x.avif",
+        disponible: true 
+      },
+      {
+        nombre: "Club de Nuit Sillage",
+        marca: "Armaf",
+        categoria: "Citrico",
+        notas: " bergamota, limón (lima ácida), lima (limón verde), grosellas negras, hojas de violeta y jengibre",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.64105.2x.avif",
+        disponible: true 
+      },
+      {
+        nombre: "Ocean rush",
+        marca: "Rayhaan",
+        categoria: "fresco",
+        notas: "Cascalone, Aquozone, bergamota y mandarina",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.107857.2x.avif",
+        disponible: true 
+      },
+      {
+        nombre: "Rayhaan Elixir",
+        marca: "Rayhaan",
+        categoria: "avainallado",
+        notas: "menta y bergamota",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.95265.2x.avif",
+        disponible: true 
+      },
+      {
+        nombre: "Odysssey Artisto",
+        marca: "Armaf",
+        categoria: "avainillado",
+        notas: "Las Notas de Salida son bergamota; Notas de frutos secos y salvia, las Notas de Corazón son coco, frutas tropicales y canela; las Notas de Fondo son vainilla, ámbar y haba tonka.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.106710.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Khamrah Eau de Parfum",
+        marca: "Lattafa",
+        categoria: "dulce",
+        notas: "Las Notas de Salida son canela, nuez moscada y bergamota; las Notas de Corazón son dátiles, praliné, nardos y Mahonial; las Notas de Fondo son vainilla, haba tonka, Amberwood, mirra, benjuí y Akigalawood.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.75805.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Art of Universe",
+        marca: "Lattafa",
+        categoria: "Citrico",
+        notas: " Las Notas de Salida son mandarina, jengibre, bergamota y menta; las Notas de Corazón son pera y flor de azahar del naranjo; las Notas de Fondo son almizcle, ámbar y cedro.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.101314.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Eau de Lacoste L.12.12. White Lacoste Fragrances",
+        marca: "Lacoste",
+        categoria: "Amaderado",
+        notas: "Las Notas de Salida son toronja (pomelo), romero y cardamomo; las Notas de Corazón son ylang-ylang y nardos; las Notas de Fondo son cedro de Virginia, gamuza, vetiver y cuero.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.11043.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Odyssey Homme",
+        marca: "Armaf",
+        categoria: "Ambar",
+        notas: "Las Notas de Salida son vainilla y ámbar; las Notas de Corazón son notas orientales, especias y iris; las Notas de Fondo son vainilla, cuero y jazmín.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.64464.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Bad boy cobalt",
+        marca: "Carolina Herrera",
+        categoria: "Aromatico",
+        notas: " Las Notas de Salida son lavanda y pimienta rosa; las Notas de Corazón son ciruela y geranio; las Notas de Fondo son cedro, vetiver, trufa y roble.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.71888.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Escape Man",
+        marca: "Calvin Klein",
+        categoria: "Amaderado",
+        notas: "Las notas de salida incluyen mango, bergamota y eucalipto",
+        imagen: "https://www.bellaroma.mx/wp-content/uploads/2020/05/calvin-klein-escape-perfume-hombre.jpg",
+        disponible: true
+      },
+      {
+        nombre: "Le Beau Paradise Garden",
+        marca: "Jean Paul Gaultier",
+        categoria: "Coco",
+        notas: "Las Notas de Salida son notas verdes, notas acuosas, menta y jengibre; las Notas de Corazón son coco, higo y sal; las Notas de Fondo son haba tonka y sándalo.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.88836.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Explorer Montblanc",
+        marca: "Montblanc",
+        categoria: "Amaderado",
+        notas: "Las Notas de Salida son bergamota, pimienta rosa y esclarea; las Notas de Corazón son vetiver de Haití y cuero; las Notas de Fondo son ambroxan, Akigalawood, hojas de pachulí de Indonesia y vaina de cacao.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.52002.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Odyssey Aqua Edition",
+        marca: "Armaf",
+        categoria: "Aromatico",
+        notas: "Las Notas de Salida son naranja, toronja (pomelo) y abrótano; las Notas de Corazón son menta y lavanda; las Notas de Fondo son ambroxan, ciprés y pachulí.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.83134.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "CK One Calvin Klein",
+        marca: "Calvin Klein",
+        categoria: "Citrico",
+        notas: "Las Notas de Salida son limón (lima ácida), notas verdes, bergamota, mandarina, piña, cardamomo y papaya; las Notas de Corazón son lirio de los valles (muguete), jazmín, violeta, rosa, nuez moscada, fresia y raíz de lirio; las Notas de Fondo son acordes verdes, almizcle, cedro, té verde, sándalo, musgo de roble y ámbar.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.276.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Versace Pour Homme",
+        marca: "Versace",
+        categoria: "Citrico",
+        notas: "Las Notas de Salida son limón (lima ácida), bergamota, neroli y rosa de Mai; las Notas de Corazón son jacinto, cedro, esclarea y geranio; las Notas de Fondo son almizcle, haba tonka y ámbar.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.2318.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Odyssey Mandarin Sky",
+        marca: "Armaf",
+        categoria: "Citrico",
+        notas: "Las Notas de Salida son mandarina, naranja, azafrán y salvia; las Notas de Corazón son caramelo, haba tonka y cempasúchil (tagete, clavelón); las Notas de Fondo son ambroxan, cedro y vetiver",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.83132.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Eros Versace",
+        marca: "Versace",
+        categoria: "Avainillado",
+        notas: " Las Notas de Salida son menta, manzana verde y limón (lima ácida); las Notas de Corazón son haba tonka, ambroxan y geranio; las Notas de Fondo son vainilla de Madagascar, cedro de Virginia, cedro del Atlas, vetiver y musgo de roble.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.16657.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "212 VIP Black",
+        marca: "Carolina Herrera",
+        categoria: "Aromatico",
+        notas: "Las Notas de Salida son absenta, anís y hinojo; la Nota de Corazón es lavanda; las Notas de Fondo son vaina de vainilla negra y almizcle",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.46093.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Club de Nuit Urban Man",
+        marca: "Armaf",
+        categoria: "Amaderado",
+        notas: "Las Notas de Salida son bergamota, menta, toronja (pomelo) y cardamomo; las Notas de Corazón son cedro, lavanda, jengibre y nuez moscada; las Notas de Fondo son pachulí, vetiver, sándalo y musgo de roble.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.47394.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Eros Energy Versace",
+        marca: "Versace",
+        categoria: "Citrico",
+        notas: " Las Notas de Salida son limón (lima ácida), lima (limón verde), toronja (pomelo), naranja sanguina, bergamota de Sicilia y mandarina; las Notas de Corazón son pimienta rosa, ámbar blanco y grosellas negras; las Notas de Fondo son almizcle, musgo de roble y pachulí.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.92647.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Odyssey Homme White Edition",
+        marca: "Armaf",
+        categoria: "Ambar",
+        notas: "Las Notas de Salida son pimienta rosa, yuzu y toronja (pomelo); las Notas de Corazón son hojas de violeta y notas marinas; las Notas de Fondo son ámbar, Amberwood y madera de gaiac.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.64466.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "The Kingdom For Men",
+        marca: "Lattafa",
+        categoria: "Avainallado",
+        notas: " Las Notas de Salida son lavanda, menta y salvia; las Notas de Corazón son vainilla, tabaco y flor de azahar del naranjo; las Notas de Fondo son haba tonka, benjuí y ládano.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.97995.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Legend Spirit Montblanc",
+        marca: "Montblanc",
+        categoria: "Citrico",
+        notas: "Las Notas de Salida son toronja (pomelo), bergamota y pimienta rosa; las Notas de Corazón son notas acuáticas, lavanda y cardamomo; las Notas de Fondo son almizcle blanco, maderas blancas, madera de cachemira y musgo de roble.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.33443.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "King Bharara",
+        marca: "Bharara",
+        categoria: "Citrico",
+        notas: "Las Notas de Salida son naranja, limón (lima ácida) y bergamota; la Nota de Corazón es notas afrutadas; las Notas de Fondo son vainilla, almizcle blanco y ámbar.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.74184.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Versace Pour Homme Dylan Blue Versace",
+        marca: "Versace",
+        categoria: "Ambar",
+        notas: "Las Notas de Salida son bergamota de Calabria, notas acuáticas, toronja (pomelo) y hojas de higuera; las Notas de Corazón son ambroxan, pimienta negra, pachulí, hojas de violeta y papiro de Egipto; las Notas de Fondo son incienso, almizcle, haba tonka y azafrán.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.40031.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Liquid Brun French Avenue",
+        marca: "French Avenue",
+        categoria: "Dulce",
+        notas: "Las Notas de Salida son canela, flor de azahar del naranjo, cardamomo y bergamota; las Notas de Corazón son vainilla Bourbon y elemí; las Notas de Fondo son praliné, ambroxan, madera de gaiac y almizcle.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.94713.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Invictus Victory Elixir Rabanne",
+        marca: "Rabanne",
+        categoria: "Avainillado",
+        notas: "Las Notas de Salida son lavanda, cardamomo y pimienta negra; las Notas de Corazón son incienso y pachulí; las Notas de Fondo son vaina de vainilla y haba tonka.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.78575.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Nitro Red Dumont",
+        marca: "Dumont",
+        categoria: "Amaderado",
+        notas: "Las Notas de Salida son manzana, lavanda y bergamota; las Notas de Corazón son sandía, cedro y cálamo aromático; las Notas de Fondo son ámbar, sándalo y pachulí.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.73023.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "CH Men Carolina Herrera",
+        marca: "Carolina Herrara",
+        categoria: "Cuero",
+        notas: "Las Notas de Salida son hierba, bergamota y toronja (pomelo); las Notas de Corazón son notas amaderadas, nuez moscada, violeta, azafrán y jazmín; las Notas de Fondo son azúcar, cuero, vainilla, gamuza, ámbar, madera de cachemira, sándalo, musgo de roble y vetiver.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.6759.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Turathi Electric Afnan",
+        marca: "Afnan",
+        categoria: "Citrico",
+        notas: "Las Notas de Salida son pera, mandarina, toronja (pomelo) rosada y bergamota; las Notas de Corazón son flor de azahar del naranjo, manzana y cedro; las Notas de Fondo son almizcle, ámbar y vainilla.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.108244.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Wanted by Night Azzaro",
+        marca: "Azzaro",
+        categoria: "Calido especiado",
+        notas: "Las Notas de Salida son canela, mandarina, lavanda y limón (lima ácida); las Notas de Corazón son notas afrutadas, incienso, comino y cedro rojo; las Notas de Fondo son tabaco, vainilla, cedro, cuero, benjuí, Iso E Super, ciprés y pachulí.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.49144.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Bade'e Al Oud Honor & Glory",
+        marca: "Lattafa",
+        categoria: "Dulce",
+        notas: " Las Notas de Salida son piña y créme brulée; las Notas de Corazón son canela, cúrcuma (azafrán de la India), pimienta negra y benjuí; las Notas de Fondo son vainilla, sándalo, cachemira y musgo.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.84302.2x.avif",
+        disponible: true
+      },
+      {
+        nombre: "Halloween Man X Halloween",
+        marca: "Halloween",
+        categoria: "Calido especiado",
+        notas: "Las Notas de Salida son cardamomo, lavanda y limón (lima ácida); las Notas de Corazón son café, whisky, canela, cuero y Notas minerales; las Notas de Fondo son haba tonka, ámbar y incienso.",
+        imagen: "https://fimgs.net/mdimg/perfume-thumbs/375x500.53215.2x.avif",
+        disponible: true
+      }
+    ];
+
+    const catalogo = document.getElementById("catalogo");
+    const detalle = document.getElementById("detalle");
+    const filtroMarca = document.getElementById("filtroMarca");
+    const filtroCategoria = document.getElementById("filtroCategoria");
+
+    function cargarCatalogo(){
+      const texto = document.getElementById("buscador").value.toLowerCase();
+      const marcaSel = filtroMarca.value.toLowerCase();
+      const catSel = filtroCategoria.value.toLowerCase();
+      catalogo.innerHTML = "";
+      perfumes.forEach((p,i)=>{
+        if(!p.disponible) return;
+        if(texto && !p.nombre.toLowerCase().includes(texto) && !p.marca.toLowerCase().includes(texto)) return;
+        if(marcaSel && p.marca.toLowerCase() !== marcaSel) return;
+        if(catSel && p.categoria.toLowerCase() !== catSel) return;
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `<img src="${p.imagen}"><div class="nombre">${p.nombre}</div>`;
+        card.onclick = ()=>abrirDetalle(i);
+        catalogo.appendChild(card);
+      });
+    }
+
+    function abrirDetalle(i){
+      const p = perfumes[i];
+      document.getElementById("detalleImg").src = p.imagen;
+      document.getElementById("detalleNombre").textContent = p.nombre;
+      document.getElementById("detalleMarca").textContent = "Marca: " + p.marca;
+      document.getElementById("detalleNotas").textContent = "Notas: " + p.notas;
+      catalogo.style.display = "none";
+      detalle.style.display = "block";
+    }
+
+    function volverMenu(){
+      detalle.style.display = "none";
+      catalogo.style.display = "grid";
+    }
+
+    function cargarMarcas(){
+      const marcasUnicas = [...new Set(perfumes.filter(p=>p.disponible).map(p=>p.marca))];
+      filtroMarca.innerHTML = '<option value="">Todas las marcas</option>';
+      marcasUnicas.forEach(m=>{
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = m;
+        filtroMarca.appendChild(opt);
+      });
+    }
+
+    function cargarCategorias(){
+      const catsUnicas = [...new Set(perfumes.filter(p=>p.disponible).map(p=>p.categoria))];
+      filtroCategoria.innerHTML = '<option value="">Todas las categorías</option>';
+      catsUnicas.forEach(c=>{
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        filtroCategoria.appendChild(opt);
+      });
+    }
+
+    cargarMarcas();
+    cargarCategorias();
+    cargarCatalogo();
+  </script>
+</body>
+</html>
